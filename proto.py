@@ -77,7 +77,7 @@ def print_log(file_path, num=15):
 
 
 def answer_adhoc_questions():
-    """  """
+    """ With Records, calculate and print answers to provided questions. """
 
     file_path = "txnlog.dat"
     log = _get_bytes(file_path)
