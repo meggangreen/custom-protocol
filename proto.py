@@ -11,7 +11,26 @@ def _get_bytes(file_path):
     return data
 
 
-def _convert_to_unicode(byte_s, utf_spec):
-    """ Returns unicode string at specified encoding. """
+def print_log(file_path):
+    """ Print log in human readable format. """
 
-    return byte_s.decode('utf-')
+    log = _get_bytes(file_path)
+    records = log[9:]
+
+    index_map = {'mainframe:' ()}
+
+    # Log format:
+    # MPS7 vV | R Records
+    # | Record type | Unix timestamp | user ID             | amount in dollars |
+    mainframe = struct.unpack('>4s', bytes(log[0:4]))[0]
+    version = struct.unpack('>b', bytes(log[4:5]))[0]
+    num_recs = struct.unpack('>L', bytes(log[5:9]))[0]
+
+
+    for i in range(len(records)):
+        r_type = struct.unpack('>b', bytes(data[i:i+1]))[0]  # [i] doesn't work
+        ts = struct.unpack('>L', bytes(data[9:10]))[0]
+
+
+
+
