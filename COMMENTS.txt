@@ -1,4 +1,6 @@
-Python 3.6
+This program is written in Python 3.6 and should be run from the command line.
+The log file 'txnlog.dat' needs to be in the same directory as the program file.
 
-- big-endian byte order
-- record starts at [9] ([18])
+In an interactive Python intepreter, call "answer_adhoc_questions()" to view the
+answers to the homework questions. Call "print_log('txnlog.dat'[, num])" to see
+a specified number of records (15 by default) from the transaction log.
