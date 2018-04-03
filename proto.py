@@ -1,14 +1,14 @@
 """ Parse binary log file. """
 
-def _get_bin_to_utf_lines(file_path):
+import struct
+
+def _get_bytes(file_path):
     """ Return array of lines in file. """
 
     with open(file_path, 'rb') as file_name:
-        lines = file_name.readlines().decode()
+        data = file_name.read()
 
-    # return lines
-    for line in lines:
-        print(line)
+    return data
 
 
 def _convert_to_unicode(byte_s, utf_spec):
