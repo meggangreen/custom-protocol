@@ -42,17 +42,17 @@ def _parse_log(log):
     i = 0
     while i < len(record_data):
         r_type = unpack('>b', bytes(record_data[i:i+1]))[0]  # [i] doesn't work
-        ts = unpack('>L', bytes(record_data[i+1:i+5]))[0]
+        timestamp = unpack('>L', bytes(record_data[i+1:i+5]))[0]
         user = unpack('>Q', bytes(record_data[i+5:i+13]))[0]
 
         if r_type in [0, 1]:
-            amt = unpack('>d', bytes(record_data[i+13:i+21]))[0]
+            amount = unpack('>d', bytes(record_data[i+13:i+21]))[0]
             i += 21
         else:
-            amt = None
+            amount = None
             i += 13
 
-        records.append(Record(r_type, ts, user, amt))
+        records.append(Record(r_type, timestamp, user, amount))
 
     # Generally should probably raise an error if len(records) != num_records
 
