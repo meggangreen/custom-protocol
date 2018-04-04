@@ -4,3 +4,8 @@ The log file 'txnlog.dat' needs to be in the same directory as the program file.
 In an interactive Python intepreter, call "answer_adhoc_questions()" to view the
 answers to the homework questions. Call "print_log('txnlog.dat'[, num])" to see
 a specified number of records (15 by default) from the transaction log.
+
+Note: The way Python displays bytes to the programmer and the way struct.unpack
+works were difficult for me to wrap my head around. I found it imperative to
+examine the exact hex numbers in order to understand struct. To do that I asked
+a senior engineer for help. Their assistance definitely was key to my success.
