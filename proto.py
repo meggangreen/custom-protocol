@@ -70,10 +70,11 @@ def print_log(file_path, num=15):
     title = "{} v{} | {} Records".format(mainframe.decode('utf-8'),
                                          version,
                                          num_recs)
-    header = "| {:12} | {:14} | {:19} | {:17} |".format("Record type",
-                                                        "Unix timestamp",
-                                                        "User ID",
-                                                        "Amount in dollars")
+    rec_cols = "| {:12} | {:14} | {:19} | {:17.17} |"
+    header = rec_cols.format("Record type",
+                             "Unix timestamp",
+                             "User ID",
+                             "Amount in dollars")
     print(title, "\n", header, sep='')
     for record in records[:num]:
         if record.r_type == 0:
@@ -85,10 +86,7 @@ def print_log(file_path, num=15):
         elif record.r_type == 3:
             r_type = "EndAutopay"
         amount = str(record.amount) if record.amount else ""
-        print("| {:12} | {:14} | {:19} | {:17.17} |".format(r_type,
-                                                            record.timestamp,
-                                                            record.user,
-                                                            amount))
+        print(rec_cols.format(r_type, record.timestamp, record.user, amount))
 
 
 def answer_adhoc_questions():
