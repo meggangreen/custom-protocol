@@ -4,7 +4,15 @@ from struct import unpack
 from collections import namedtuple
 
 def _get_bytes(file_path):
-    """ Return string of bytes in file. """
+    """ Return string of bytes in file.
+
+        >>> data = _get_bytes('txnlog.dat')
+        >>> len(data)
+        1377
+        >>> data[0:4]
+        b'MPS7'
+
+    """
 
     with open(file_path, 'rb') as file_name:
         data = file_name.read()
@@ -13,7 +21,14 @@ def _get_bytes(file_path):
 
 
 def _parse_log(log):
-    """ Return header information and Records as namedtuples. """
+    """ Return header information and Records as namedtuples.
+
+        >>> log = _get_bytes('txnlog.dat')  # depends on the above function
+        >>> _, _, _, records = _parse_log(log)
+        >>> records[0].user
+        4136353673894269217
+
+    """
 
     record_data = log[9:]
     Record = namedtuple('Record', 'r_type timestamp user amount')
@@ -39,7 +54,7 @@ def _parse_log(log):
 
         records.append(Record(r_type, ts, user, amt))
 
-    # Generally should probably raise an error if num_records != len(records)
+    # Generally should probably raise an error if len(records) != num_records
 
     return (mainframe, version, num_recs, records)
 
@@ -106,3 +121,10 @@ def answer_adhoc_questions():
           count_autopays_ended, sep="")
     print("\n>>> What is balance of user ID 2456938384156277127?\n",
           "If they started from zero, the balance is ", user_bal, sep="")
+
+
+################################################################################
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
