@@ -76,15 +76,10 @@ def print_log(file_path, num=15):
                              "User ID",
                              "Amount in dollars")
     print(title, "\n", header, sep='')
+
+    record_types = ["Debit", "Credit", "StartAutopay", "EndAutopay"]
     for record in records[:num]:
-        if record.r_type == 0:
-            r_type = "Debit"
-        elif record.r_type == 1:
-            r_type = "Credit"
-        elif record.r_type == 2:
-            r_type = "StartAutopay"
-        elif record.r_type == 3:
-            r_type = "EndAutopay"
+        r_type = record_types[record.r_type]
         amount = str(record.amount) if record.amount else ""
         print(rec_cols.format(r_type, record.timestamp, record.user, amount))
 
