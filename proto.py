@@ -20,6 +20,11 @@ def _get_bytes(filepath):
     return data
 
 
+def _has_valid_header(header, req_format=b"MPS7"):
+    """ Returns True if data header validates to requested format. """
+    return unpack('!4s', bytes(header[0:4]))[0] == req_format
+
+
 def _parse_log(log):
     """ Return header information and Records as namedtuples.
 
@@ -33,11 +38,6 @@ def _parse_log(log):
     record_data = log[9:]
     Record = namedtuple('Record', 'r_type timestamp user amount')
     records = []
-
-    # The slicing in these struct commands is not nice to read
-    mainframe = unpack('>4s', bytes(log[0:4]))[0]
-    version = unpack('>b', bytes(log[4:5]))[0]
-    num_recs = unpack('>L', bytes(log[5:9]))[0]
 
     i = 0
     while i < len(record_data):
@@ -56,7 +56,7 @@ def _parse_log(log):
 
     # Generally should probably raise an error if len(records) != num_records
 
-    return (mainframe, version, num_recs, records)
+    return (None, None, None, records)
 
 
 def print_log(filepath, num=15):
