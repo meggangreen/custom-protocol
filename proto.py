@@ -20,9 +20,15 @@ def _get_bytes(filepath):
     return data
 
 
-def _has_valid_header(header, req_format=b"MPS7"):
-    """ Returns True if data header validates to requested format. """
-    return unpack('!4s', header[0:4])[0] == req_format
+def _has_valid_header(log, req_format=b"MPS7"):
+    """ Returns True if log header validates to requested format.
+
+        >>> log = _get_bytes('txnlog.dat')
+        >>> _has_valid_header(log)
+        True
+    """
+
+    return unpack_from('!4s', log, offset=0)[0] == req_format
 
 
 def _get_records(log):
