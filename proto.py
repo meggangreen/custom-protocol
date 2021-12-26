@@ -90,36 +90,34 @@ def print_log(filepath, num=15):
         print(rec_cols.format(r_type, record.time, record.user, amount))
 
 
-def answer_adhoc_questions():
-    """ With Records, calculate and print answers to provided questions. """
+def answer_adhoc_questions(filepath):
+    """ Manager function to calculate and print answers to provided questions. """
 
-    filepath = "txnlog.dat"
     log = _get_bytes(filepath)
-    mainframe, version, num_recs, records = _get_records(log)
+    if not _has_valid_header(log):
+        print("Invalid header")
+        return
 
-    total_debits = sum([r.amount for r in records  if r.r_type == 0])
-    total_credits = sum([r.amount for r in records if r.r_type == 1])
-    count_autopays_started = len([r for r in records if r.r_type == 2])
-    count_autopays_ended = len([r for r in records if r.r_type == 3])
+    records = _get_records(log)
+
+    total_debit_amount = sum([r.amount for r in records  if r.r_type == 0])
+    total_credit_amount = sum([r.amount for r in records if r.r_type == 1])
+    num_autopays_started = len([r for r in records if r.r_type == 2])
+    num_autopays_ended = len([r for r in records if r.r_type == 3])
+
     user_bal = 0
     for record in records:
-        if record.user != 2456938384156277127:
-            continue
-        if record.r_type == 0:
-            user_bal -= record.amount
-        if record.r_type == 1:
-            user_bal += record.amount
+        if record.user == 2456938384156277127:
+            if record.r_type == 0:
+                user_bal -= record.amount
+            elif record.r_type == 1:
+                user_bal += record.amount
 
-    print("\n>>> What is the total amount in dollars of debits?\n",
-          total_debits, sep="")
-    print("\n>>> What is the total amount in dollars of credits?\n",
-          total_credits, sep="")
-    print("\n>>> How many autopays were started?\n",
-          count_autopays_started, sep="")
-    print("\n>>> How many autopays were ended?\n",
-          count_autopays_ended, sep="")
-    print("\n>>> What is balance of user ID 2456938384156277127?\n",
-          "If they started from zero, the balance is ", user_bal, sep="")
+    print(f"total credit amount={total_credit_amount}")
+    print(f"total debit amount={total_debit_amount}")
+    print(f"autopays started={num_autopays_started}")
+    print(f"autopays ended={num_autopays_ended}")
+    print(f"balance for user 2456938384156277127={user_bal}")
 
 
 ################################################################################
@@ -127,3 +125,4 @@ def answer_adhoc_questions():
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
+    answer_adhoc_questions(filepath='txnlog.dat')
