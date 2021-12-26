@@ -3,7 +3,7 @@
 from struct import unpack
 from collections import namedtuple
 
-def _get_bytes(file_path):
+def _get_bytes(filepath):
     """ Return string of bytes in file.
 
         >>> data = _get_bytes('txnlog.dat')
@@ -14,8 +14,8 @@ def _get_bytes(file_path):
 
     """
 
-    with open(file_path, 'rb') as file_name:
-        data = file_name.read()
+    with open(filepath, 'rb') as f:
+        data = f.read()
 
     return data
 
@@ -59,10 +59,10 @@ def _parse_log(log):
     return (mainframe, version, num_recs, records)
 
 
-def print_log(file_path, num=15):
+def print_log(filepath, num=15):
     """ Print log in human readable format. """
 
-    log = _get_bytes(file_path)
+    log = _get_bytes(filepath)
     mainframe, version, num_recs, records = _parse_log(log)
     if len(records) < num:
         num = len(records)
@@ -87,8 +87,8 @@ def print_log(file_path, num=15):
 def answer_adhoc_questions():
     """ With Records, calculate and print answers to provided questions. """
 
-    file_path = "txnlog.dat"
-    log = _get_bytes(file_path)
+    filepath = "txnlog.dat"
+    log = _get_bytes(filepath)
     mainframe, version, num_recs, records = _parse_log(log)
 
     total_debits = sum([r.amount for r in records  if r.r_type == 0])
