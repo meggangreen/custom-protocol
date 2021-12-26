@@ -63,33 +63,6 @@ def _get_records(log):
 
 # Generally should probably raise an error if len(records) != num_records
 
-def print_log(filepath, num=15):
-    """ Print log in human readable format. """
-
-    log = _get_bytes(filepath)
-    # mainframe, version, num_recs,
-    records = _get_records(log)
-    if len(records) < num:
-        num = len(records)
-
-    # title = "{} v{} | {} Records".format(mainframe.decode('utf-8'),
-    #                                      version,
-    #                                      num_recs)
-    title = None
-    rec_cols = "| {:12} | {:14} | {:19} | {:17.17} |"
-    header = rec_cols.format("Record type",
-                             "Unix timestamp",
-                             "User ID",
-                             "Amount in dollars")
-    print(title, "\n", header, sep='')
-
-    record_types = ["Debit", "Credit", "StartAutopay", "EndAutopay"]
-    for record in records[:num]:
-        r_type = record_types[record.r_type]
-        amount = str(record.amount) if record.amount else ""
-        print(rec_cols.format(r_type, record.time, record.user, amount))
-
-
 def answer_adhoc_questions(filepath):
     """ Manager function to calculate and print answers to provided questions. """
 
