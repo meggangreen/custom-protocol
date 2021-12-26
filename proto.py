@@ -1,6 +1,6 @@
 """ Parse binary log file. """
 
-from struct import unpack
+from struct import unpack, unpack_from
 from collections import namedtuple
 
 def _get_bytes(filepath):
@@ -22,54 +22,54 @@ def _get_bytes(filepath):
 
 def _has_valid_header(header, req_format=b"MPS7"):
     """ Returns True if data header validates to requested format. """
-    return unpack('!4s', bytes(header[0:4]))[0] == req_format
+    return unpack('!4s', header[0:4])[0] == req_format
 
 
-def _parse_log(log):
-    """ Return header information and Records as namedtuples.
+def _get_records(log):
+    """ Return Records as list of namedtuples.
 
-        >>> log = _get_bytes('txnlog.dat')  # depends on the above function
-        >>> _, _, _, records = _parse_log(log)
+        >>> log = _get_bytes('txnlog.dat')
+        >>> records = _get_records(log)
         >>> records[0].user
         4136353673894269217
 
     """
 
-    record_data = log[9:]
-    Record = namedtuple('Record', 'r_type timestamp user amount')
+    Record = namedtuple('Record', 'r_type time user amount')
     records = []
+    r_types_with_amounts = [0, 1]
 
-    i = 0
-    while i < len(record_data):
-        r_type = unpack('>b', bytes(record_data[i:i+1]))[0]  # [i] doesn't work
-        timestamp = unpack('>L', bytes(record_data[i+1:i+5]))[0]
-        user = unpack('>Q', bytes(record_data[i+5:i+13]))[0]
+    offset = 9  # Bytes 0 thru 8 are the header
+    while offset < len(log):
+        r_type, time, user = unpack_from('!bLQ', log, offset=offset)
 
-        if r_type in [0, 1]:
-            amount = unpack('>d', bytes(record_data[i+13:i+21]))[0]
-            i += 21
+        # Capture the transaction amount for debits and credits
+        if r_type in r_types_with_amounts:
+            amount = unpack_from('!d', log, offset=offset+13)[0]
+            offset += 21
         else:
             amount = None
-            i += 13
+            offset += 13
 
-        records.append(Record(r_type, timestamp, user, amount))
+        records.append(Record(r_type, time, user, amount))
 
-    # Generally should probably raise an error if len(records) != num_records
+    return records
 
-    return (None, None, None, records)
-
+# Generally should probably raise an error if len(records) != num_records
 
 def print_log(filepath, num=15):
     """ Print log in human readable format. """
 
     log = _get_bytes(filepath)
-    mainframe, version, num_recs, records = _parse_log(log)
+    # mainframe, version, num_recs,
+    records = _get_records(log)
     if len(records) < num:
         num = len(records)
 
-    title = "{} v{} | {} Records".format(mainframe.decode('utf-8'),
-                                         version,
-                                         num_recs)
+    # title = "{} v{} | {} Records".format(mainframe.decode('utf-8'),
+    #                                      version,
+    #                                      num_recs)
+    title = None
     rec_cols = "| {:12} | {:14} | {:19} | {:17.17} |"
     header = rec_cols.format("Record type",
                              "Unix timestamp",
@@ -81,7 +81,7 @@ def print_log(filepath, num=15):
     for record in records[:num]:
         r_type = record_types[record.r_type]
         amount = str(record.amount) if record.amount else ""
-        print(rec_cols.format(r_type, record.timestamp, record.user, amount))
+        print(rec_cols.format(r_type, record.time, record.user, amount))
 
 
 def answer_adhoc_questions():
@@ -89,7 +89,7 @@ def answer_adhoc_questions():
 
     filepath = "txnlog.dat"
     log = _get_bytes(filepath)
-    mainframe, version, num_recs, records = _parse_log(log)
+    mainframe, version, num_recs, records = _get_records(log)
 
     total_debits = sum([r.amount for r in records  if r.r_type == 0])
     total_credits = sum([r.amount for r in records if r.r_type == 1])
