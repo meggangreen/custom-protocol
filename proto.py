@@ -1,44 +1,38 @@
 """ Parse binary log file. """
 
-from struct import unpack, unpack_from
+from struct import unpack_from
 from collections import namedtuple
 
-def _get_bytes(filepath):
+def _read_in_log(filepath):
     """ Return string of bytes in file.
 
-        >>> data = _get_bytes('txnlog.dat')
+        >>> data = _read_in_log('txnlog.dat')
         >>> len(data)
         1377
         >>> data[0:4]
         b'MPS7'
-
     """
-
     with open(filepath, 'rb') as f:
-        data = f.read()
-
-    return data
+        return f.read()
 
 
 def _has_valid_header(log, req_format=b"MPS7"):
     """ Returns True if log header validates to requested format.
 
-        >>> log = _get_bytes('txnlog.dat')
+        >>> log = _read_in_log('txnlog.dat')
         >>> _has_valid_header(log)
         True
     """
-
     return unpack_from('!4s', log, offset=0)[0] == req_format
 
 
 def _get_records(log):
     """ Return Records as list of namedtuples.
 
-        >>> log = _get_bytes('txnlog.dat')
+        >>> log = _read_in_log('txnlog.dat')
         >>> records = _get_records(log)
         >>> records[0].user
         4136353673894269217
-
     """
 
     Record = namedtuple('Record', 'r_type time user amount')
@@ -48,7 +42,6 @@ def _get_records(log):
     offset = 9  # Bytes 0 thru 8 are the header
     while offset < len(log):
         r_type, time, user = unpack_from('!bLQ', log, offset=offset)
-
         # Capture the transaction amount for debits and credits
         if r_type in r_types_with_amounts:
             amount = unpack_from('!d', log, offset=offset+13)[0]
@@ -56,17 +49,15 @@ def _get_records(log):
         else:
             amount = None
             offset += 13
-
         records.append(Record(r_type, time, user, amount))
 
     return records
 
-# Generally should probably raise an error if len(records) != num_records
 
 def answer_adhoc_questions(filepath):
     """ Manager function to calculate and print answers to provided questions. """
 
-    log = _get_bytes(filepath)
+    log = _read_in_log(filepath)
     if not _has_valid_header(log):
         print("Invalid header")
         return
@@ -92,9 +83,7 @@ def answer_adhoc_questions(filepath):
     print(f"autopays ended={num_autopays_ended}")
     print(f"balance for user 2456938384156277127={user_bal}")
 
-
 ################################################################################
-
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
